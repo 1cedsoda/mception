@@ -7,6 +7,7 @@ use axum::{
 };
 use serde_json::Value;
 use std::sync::Arc;
+use tracing::error;
 
 use crate::core::{
     AddAgentAllowedMcpRequest, CreateAgentRequest, CreateLeafMcpRequest, DeleteAgentRequest,
@@ -68,7 +69,7 @@ async fn create_leaf_mcp(
             "message": format!("Leaf MCP '{}' created successfully", request.id)
         }))),
         Err(e) => {
-            eprintln!("Error creating leaf MCP: {}", e);
+            error!("Error creating leaf MCP: {}", e);
             Err(StatusCode::INTERNAL_SERVER_ERROR)
         }
     }
@@ -167,7 +168,7 @@ async fn create_agent(
             "message": format!("Agent '{}' created successfully", request.agent_id)
         }))),
         Err(e) => {
-            eprintln!("Error creating agent: {}", e);
+            error!("Error creating agent: {}", e);
             Err(StatusCode::INTERNAL_SERVER_ERROR)
         }
     }

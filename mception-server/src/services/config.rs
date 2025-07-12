@@ -6,6 +6,7 @@ use crate::storage::providers::{AuditStorage, ConfigStorage};
 use chrono::Utc;
 use std::sync::Arc;
 use tokio::sync::RwLock;
+use tracing::error;
 use uuid::Uuid;
 
 /// The main service for managing MCeption server configuration and operations
@@ -150,7 +151,7 @@ impl ConfigService {
             .await
         {
             // Log the error but don't propagate it for read operations
-            eprintln!("Failed to log audit entry for read operation: {}", e);
+            error!("Failed to log audit entry for read operation: {}", e);
         }
 
         Ok(mcp_config)
@@ -353,7 +354,7 @@ impl ConfigService {
             )
             .await
         {
-            eprintln!("Failed to log audit entry for read operation: {}", e);
+            error!("Failed to log audit entry for read operation: {}", e);
         }
 
         Ok(agent_config)

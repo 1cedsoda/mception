@@ -9,12 +9,16 @@ use clap::Parser;
 use cli::{Cli, Commands};
 use std::net::SocketAddr;
 use std::sync::Arc;
+use tracing::{error, info};
 
 use crate::services::ConfigService;
 use crate::storage::providers::{FileAuditStorage, FileConfigStorage};
 
 #[tokio::main]
 async fn main() {
+    // Initialize tracing
+    tracing_subscriber::fmt::init();
+    
     let cli = Cli::parse();
 
     // Initialize storage providers with CLI-provided paths
@@ -27,7 +31,7 @@ async fn main() {
 
     // Load existing configuration
     if let Err(e) = config_service.load_configuration().await {
-        eprintln!("Failed to load configuration: {}", e);
+        error!("Failed to load configuration: {}", e);
         std::process::exit(1);
     }
 
@@ -47,7 +51,7 @@ async fn main() {
             )
             .await
             {
-                eprintln!("Error executing command: {}", e);
+                error!("Error executing command: {}", e);
                 std::process::exit(1);
             }
         }
@@ -70,8 +74,8 @@ async fn start_server(manager: Arc<ConfigService>, host: String, port: u16) {
         port,
     ));
 
-    println!("MCePtion Server v{}", env!("CARGO_PKG_VERSION"));
-    println!("Listening on http://{}", addr);
+    info!("MCePtion Server v{}", env!("CARGO_PKG_VERSION"));
+    info!("Listening on http://{}", addr);
 
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
     axum::serve(listener, app).await.unwrap();
