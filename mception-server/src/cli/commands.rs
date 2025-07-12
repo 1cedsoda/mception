@@ -8,7 +8,7 @@ use serde_json;
 
 pub async fn handle_command(
     command: Commands,
-    manager: &ConfigService,
+    config_service: &ConfigService,
     config_storage: &dyn ConfigStorage,
     audit_storage: &dyn AuditStorage,
 ) -> Result<(), Box<dyn std::error::Error>> {
@@ -31,18 +31,6 @@ pub async fn handle_command(
             let entries = audit_storage.load_entries().await?;
             let filtered_entries = filter_audit_entries(entries, limit, action, target, actor);
             display_audit_entries(&filtered_entries, format).await
-        }
-        Commands::ListMcps { format } => {
-            let mcps = manager.list_leaf_mcps().await?;
-            display_mcps_list(&mcps, format).await
-        }
-        Commands::ListAgents { format } => {
-            let agents = manager.list_agents().await?;
-            display_agents_list(&agents, format).await
-        }
-        Commands::Export { output, format } => {
-            let config = config_storage.load_config().await?;
-            export_config(&config, &output, format).await
         }
     }
 }
@@ -180,137 +168,6 @@ async fn display_audit_entries(
             }
         }
     }
-    Ok(())
-}
-
-async fn display_mcps_list(
-    mcps: &[(String, crate::core::LeafMcpConfig)],
-    format: OutputFormat,
-) -> Result<(), Box<dyn std::error::Error>> {
-    match format {
-        OutputFormat::Json => {
-            println!("{}", serde_json::to_string_pretty(mcps)?);
-        }
-        OutputFormat::Pretty => {
-            println!("Leaf MCPs ({}):", mcps.len());
-            for (id, config) in mcps {
-                let name = config.name.as_ref().unwrap_or(id);
-                println!("  - {} ({})", id, name);
-                if let Some(desc) = &config.description {
-                    println!("    Description: {}", desc);
-                }
-            }
-        }
-        OutputFormat::Yaml => {
-            println!("# YAML output not implemented, showing JSON:");
-            println!("{}", serde_json::to_string_pretty(mcps)?);
-        }
-        OutputFormat::Table => {
-            println!("| ID | Name | Description |");
-            println!("| -- | ---- | ----------- |");
-            for (id, config) in mcps {
-                let name = config.name.as_ref().unwrap_or(id);
-                let desc = config
-                    .description
-                    .as_ref()
-                    .map(|s| s.as_str())
-                    .unwrap_or("");
-                println!("| {} | {} | {} |", id, name, desc);
-            }
-        }
-    }
-    Ok(())
-}
-
-async fn display_agents_list(
-    agents: &[(String, crate::core::AgentConfig)],
-    format: OutputFormat,
-) -> Result<(), Box<dyn std::error::Error>> {
-    match format {
-        OutputFormat::Json => {
-            println!("{}", serde_json::to_string_pretty(agents)?);
-        }
-        OutputFormat::Pretty => {
-            println!("MCePtion Agents ({}):", agents.len());
-            for (id, config) in agents {
-                let name = config.name.as_ref().unwrap_or(id);
-                println!("  - {} ({})", id, name);
-                println!("    Connected: {}", config.is_connected);
-                println!("    Allowed MCPs: {}", config.allowed_mcp_ids.len());
-                if let Some(desc) = &config.description {
-                    println!("    Description: {}", desc);
-                }
-            }
-        }
-        OutputFormat::Yaml => {
-            println!("# YAML output not implemented, showing JSON:");
-            println!("{}", serde_json::to_string_pretty(agents)?);
-        }
-        OutputFormat::Table => {
-            println!("| Agent ID | Name | Connected | Allowed MCPs |");
-            println!("| -------- | ---- | --------- | ------------ |");
-            for (id, config) in agents {
-                let name = config.name.as_ref().unwrap_or(id);
-                println!(
-                    "| {} | {} | {} | {} |",
-                    id,
-                    name,
-                    config.is_connected,
-                    config.allowed_mcp_ids.len()
-                );
-            }
-        }
-    }
-    Ok(())
-}
-
-async fn export_config(
-    config: &ServerConfig,
-    output: &str,
-    format: OutputFormat,
-) -> Result<(), Box<dyn std::error::Error>> {
-    use tokio::fs;
-
-    let content = match format {
-        OutputFormat::Json => serde_json::to_string_pretty(config)?,
-        OutputFormat::Pretty => {
-            format!(
-                "MCePtion Server Configuration Export\n\
-                     Generated: {}\n\
-                     {}",
-                chrono::Utc::now(),
-                serde_json::to_string_pretty(config)?
-            )
-        }
-        OutputFormat::Yaml => {
-            format!(
-                "# MCePtion Server Configuration Export\n\
-                     # Generated: {}\n\
-                     # YAML export not fully implemented, using JSON format:\n\
-                     {}",
-                chrono::Utc::now(),
-                serde_json::to_string_pretty(config)?
-            )
-        }
-        OutputFormat::Table => {
-            format!(
-                "MCePtion Server Configuration Export (Table Format)\n\
-                     Generated: {}\n\
-                     Note: Table format is not suitable for export, using JSON:\n\
-                     {}",
-                chrono::Utc::now(),
-                serde_json::to_string_pretty(config)?
-            )
-        }
-    };
-
-    // Create directory if it doesn't exist
-    if let Some(parent) = std::path::Path::new(output).parent() {
-        fs::create_dir_all(parent).await?;
-    }
-
-    fs::write(output, content).await?;
-    println!("Configuration exported to: {}", output);
     Ok(())
 }
 

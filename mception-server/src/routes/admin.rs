@@ -22,22 +22,22 @@ pub fn router() -> Router {
     Router::new()
         // Leaf MCP endpoints
         .route("/leaf", post(create_leaf_mcp))
-        .route("/leaf/:leaf_mcp_id/config", get(read_leaf_mcp_config))
-        .route("/leaf/:leaf_mcp_id/config", put(update_leaf_mcp_config))
-        .route("/leaf/:leaf_mcp_id", delete(delete_leaf_mcp))
-        .route("/leaf/:leaf_mcp_id/tools", get(read_leaf_mcp_tools))
+        .route("/leaf/{leaf_mcp_id}/config", get(read_leaf_mcp_config))
+        .route("/leaf/{leaf_mcp_id}/config", put(update_leaf_mcp_config))
+        .route("/leaf/{leaf_mcp_id}", delete(delete_leaf_mcp))
+        .route("/leaf/{leaf_mcp_id}/tools", get(read_leaf_mcp_tools))
         // MCeption Agent endpoints
         .route("/agent", post(create_agent))
-        .route("/agent/:agent_id/config", get(read_agent_config))
-        .route("/agent/:agent_id/config", put(update_agent_config))
-        .route("/agent/:agent_id", delete(delete_agent))
-        .route("/agent/:agent_id/tools", get(read_agent_tools))
+        .route("/agent/{agent_id}/config", get(read_agent_config))
+        .route("/agent/{agent_id}/config", put(update_agent_config))
+        .route("/agent/{agent_id}", delete(delete_agent))
+        .route("/agent/{agent_id}/tools", get(read_agent_tools))
         .route(
-            "/agent/:agent_id/allowed_mcps",
+            "/agent/{agent_id}/allowed_mcps",
             post(add_agent_allowed_mcps),
         )
         .route(
-            "/agent/:agent_id/allowed_mcps",
+            "/agent/{agent_id}/allowed_mcps",
             delete(remove_agent_allowed_mcps),
         )
         // System endpoints

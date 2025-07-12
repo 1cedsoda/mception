@@ -55,27 +55,6 @@ pub enum Commands {
         #[arg(long)]
         actor: Option<String>,
     },
-    /// List all leaf MCPs
-    ListMcps {
-        /// Output format
-        #[arg(short, long, default_value = "pretty")]
-        format: OutputFormat,
-    },
-    /// List all agents
-    ListAgents {
-        /// Output format
-        #[arg(short, long, default_value = "pretty")]
-        format: OutputFormat,
-    },
-    /// Export configuration to a file
-    Export {
-        /// Output file path
-        #[arg(short, long)]
-        output: String,
-        /// Output format
-        #[arg(short, long, default_value = "json")]
-        format: OutputFormat,
-    },
 }
 
 #[derive(Clone, clap::ValueEnum)]

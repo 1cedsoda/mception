@@ -13,7 +13,7 @@ use crate::services::ConfigService;
 type ServiceExtension = Extension<Arc<ConfigService>>;
 
 pub fn router() -> Router {
-    Router::new().route("/:leaf_mcp_id/forwarding", any(leaf_mcp_forwarding))
+    Router::new().route("/{leaf_mcp_id}/forwarding", any(leaf_mcp_forwarding))
 }
 
 async fn leaf_mcp_forwarding(

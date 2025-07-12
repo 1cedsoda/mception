@@ -14,9 +14,9 @@ type ServiceExtension = Extension<Arc<ConfigService>>;
 
 pub fn router() -> Router {
     Router::new()
-        .route("/:agent_id/config", get(get_agent_config))
-        .route("/:agent_id/forwarding", any(agent_forwarding))
-        .route("/:agent_id/forwarding_ws", any(agent_forwarding_ws))
+        .route("/{agent_id}/config", get(get_agent_config))
+        .route("/{agent_id}/forwarding", any(agent_forwarding))
+        .route("/{agent_id}/forwarding_ws", any(agent_forwarding_ws))
 }
 
 async fn get_agent_config(

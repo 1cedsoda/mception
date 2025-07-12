@@ -18,7 +18,7 @@ use crate::storage::providers::{FileAuditStorage, FileConfigStorage};
 async fn main() {
     // Initialize tracing
     tracing_subscriber::fmt::init();
-    
+
     let cli = Cli::parse();
 
     // Initialize storage providers with CLI-provided paths
@@ -58,15 +58,15 @@ async fn main() {
     }
 }
 
-async fn start_server(manager: Arc<ConfigService>, host: String, port: u16) {
+async fn start_server(config_service: Arc<ConfigService>, host: String, port: u16) {
     let app = Router::new()
         // Admin API routes (no /admin prefix per README spec)
-        .merge(routes::admin::router())
+        .nest("/admin", routes::admin::router())
         // Agent runtime routes (with /agent prefix)
         .nest("/agent", routes::agent::router())
         // Leaf MCP forwarding routes (with /leaf prefix)
         .nest("/leaf", routes::leaf::router())
-        .layer(Extension(manager.clone()));
+        .layer(Extension(config_service.clone()));
 
     let addr = SocketAddr::from((
         host.parse::<std::net::IpAddr>()
