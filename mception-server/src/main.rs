@@ -9,19 +9,43 @@ use clap::Parser;
 use cli::{Cli, Commands};
 use std::net::SocketAddr;
 use std::sync::Arc;
-use tracing::{error, info};
+use tracing::{debug, error, info};
 
 use crate::services::ConfigService;
 use crate::storage::providers::{FileAuditStorage, FileConfigStorage};
 
 #[tokio::main]
 async fn main() {
-    // Initialize tracing
-    tracing_subscriber::fmt::init();
+    // Initialize tracing with more explicit configuration
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::INFO)
+        .init();
 
     let cli = Cli::parse();
 
-    // Initialize storage providers with CLI-provided paths
+    // Ensure parent directories exist for config file
+    if let Some(parent) = std::path::Path::new(&cli.config).parent() {
+        if !parent.exists() {
+            debug!("Creating config directory: {:?}", parent);
+            if let Err(e) = std::fs::create_dir_all(parent) {
+                eprintln!("Failed to create config directory: {}", e);
+                std::process::exit(1);
+            }
+        }
+    }
+
+    // Ensure parent directories exist for audit log file
+    if let Some(parent) = std::path::Path::new(&cli.audit_log).parent() {
+        if !parent.exists() {
+            debug!("Creating audit log directory: {:?}", parent);
+            if let Err(e) = std::fs::create_dir_all(parent) {
+                error!("Failed to create audit log directory: {}", e);
+                std::process::exit(1);
+            }
+        }
+    }
+
+    // Initialize storage providers with explicit CLI-provided paths
     let config_storage = Arc::new(FileConfigStorage::new(&cli.config));
     let audit_storage = Arc::new(FileAuditStorage::new(&cli.audit_log));
     let config_service = Arc::new(ConfigService::new(
@@ -38,6 +62,7 @@ async fn main() {
     // Handle CLI commands
     match cli.command.unwrap_or_default() {
         Commands::Start => {
+            info!("Starting server...");
             // Start the server
             start_server(config_service, cli.host, cli.port).await;
         }

@@ -28,12 +28,22 @@ impl FileConfigStorage {
 impl ConfigStorage for FileConfigStorage {
     async fn load_config(&self) -> MceptionResult<ServerConfig> {
         if !Path::new(&self.config_path).exists() {
-            return Ok(ServerConfig::default());
+            // Create a default config and save it
+            let default_config = ServerConfig::default();
+            self.save_config(&default_config).await?;
+            return Ok(default_config);
         }
 
         let content = fs::read_to_string(&self.config_path)
             .await
             .map_err(StorageError::from)?;
+            
+        if content.trim().is_empty() {
+            // If file exists but is empty, create default config
+            let default_config = ServerConfig::default();
+            self.save_config(&default_config).await?;
+            return Ok(default_config);
+        }
             
         let config: ServerConfig = serde_json::from_str(&content)
             .map_err(StorageError::from)?;

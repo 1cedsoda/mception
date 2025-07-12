@@ -7,12 +7,12 @@ use clap::{Parser, Subcommand};
 #[command(about = "MCePtion Server - MCP hotplugging system for distributed agents")]
 #[command(version = "0.1.0")]
 pub struct Cli {
-    /// Configuration file path
-    #[arg(short, long, default_value = "data/config.json")]
+    /// Configuration file path (will be created if it doesn't exist)
+    #[arg(short, long, default_value = "config.json")]
     pub config: String,
 
-    /// Audit log file path
-    #[arg(short, long, default_value = "data/audit.log")]
+    /// Audit log file path (will be created if it doesn't exist)
+    #[arg(short, long, default_value = "audit.log")]
     pub audit_log: String,
 
     /// Server bind address
@@ -27,7 +27,7 @@ pub struct Cli {
     pub command: Option<Commands>,
 }
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Debug)]
 pub enum Commands {
     /// Start the MCePtion server (default)
     Start,
@@ -57,7 +57,7 @@ pub enum Commands {
     },
 }
 
-#[derive(Clone, clap::ValueEnum)]
+#[derive(Clone, clap::ValueEnum, Debug)]
 pub enum OutputFormat {
     Json,
     Pretty,
