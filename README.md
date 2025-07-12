@@ -33,7 +33,7 @@ The MCePtion server manages
 This is persisted inside a JSON file, but could be extended to versioned git repositories or other storage systems.
 
 ### Remote MCP Configuration
-Via the `GET /agent/<agent_id>/mcp_config` endpoint, MCePtion Agents can download their remote MCP configuration. This configuration is a JSON object that contains the MCPs and their configurations that the agent is allowed to use.
+Via the `GET /agent/<agent_id>/config` endpoint, MCePtion Agents can download their remote MCP configuration. This configuration is a JSON object that contains the MCPs and their configurations that the agent is allowed to use.
 
 ### MCePtion Agents
 MCePtion agents are servers that can pull their remote MCP configuration from the MCePtion server. There is the MCePtion SDK which allows for remote MCP configuration download and MCP query forwarding via WebSockets.

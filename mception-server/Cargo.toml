@@ -1,0 +1,16 @@
+[package]
+name = "mception-server"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+
+axum = "0.8"
+tokio = { version = "1", features = ["full"] }
+hyper = { version = "1", features = ["full"] }
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.0", features = ["v4", "serde"] }
+async-trait = "0.1"
+clap = { version = "4.0", features = ["derive"] }
